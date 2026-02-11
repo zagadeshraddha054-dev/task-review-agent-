@@ -2,26 +2,47 @@ function taskReviewAgent(input) {
   if (!input || input.trim().length < 10) {
     return {
       status: "fail",
-      score: 0,
-      summary: "Submission failed validation",
-      failure_reasons: ["Input too short or empty"]
+      readiness_percent: 0,
+      analysis: {
+        strengths: [],
+        weaknesses: ["Input too short or empty"]
+      },
+      improvement_hints: [],
+      meta: {
+        engine_version: "mock-v1",
+        evaluation_time_ms: 0
+      }
     };
   }
 
   if (input.toLowerCase().includes("irrelevant")) {
     return {
       status: "fail",
-      score: 0,
-      summary: "Submission is irrelevant",
-      failure_reasons: ["Irrelevant content"]
+      readiness_percent: 0,
+      analysis: {
+        strengths: [],
+        weaknesses: ["Irrelevant content"]
+      },
+      improvement_hints: [],
+      meta: {
+        engine_version: "mock-v1",
+        evaluation_time_ms: 0
+      }
     };
   }
 
   return {
     status: "pass",
-    score: 80,
-    summary: "Submission meets quality standards",
-    failure_reasons: []
+    readiness_percent: 82,
+    analysis: {
+      strengths: ["Clear explanation"],
+      weaknesses: []
+    },
+    improvement_hints: ["Add more examples"],
+    meta: {
+      engine_version: "mock-v1",
+      evaluation_time_ms: 0
+    }
   };
 }
 
