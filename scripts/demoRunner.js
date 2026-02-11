@@ -2,34 +2,27 @@ const { taskReviewAgent } = require("../mock/taskReviewAgent");
 const { validateAgentOutput } = require("../validators/outputValidator");
 
 const inputs = [
-  { name: "PASS CASE", input: "This submission clearly explains the solution in detail." },
-  { name: "BORDERLINE CASE", input: "Brief but valid explanation." },
-  { name: "FAIL CASE", input: "Irrelevant content." },
-  { name: "EMPTY CASE", input: "" }
+  "Clear and structured explanation.",
+  "Very short",
+  "",
+  "Irrelevant content"
 ];
 
 console.log(" Demo Runner\n");
 
-inputs.forEach(({ name, input }) => {
+inputs.forEach(input => {
   const start = Date.now();
-  let finalOutput;
+  const raw = taskReviewAgent(input);
+  const validation = validateAgentOutput(raw);
 
-  try {
-    const raw = taskReviewAgent(input);
-    const validation = validateAgentOutput(raw);
-    finalOutput = validation.valid ? validation.data : validation.safe_response;
-  } catch {
-    finalOutput = {
-      status: "fail",
-      score: 0,
-      summary: "Unhandled error",
-      failure_reasons: ["Exception caught"]
-    };
-  }
+  const output = validation.valid
+    ? validation.data
+    : validation.safe_response;
 
-  console.log(`${name}`);
-  console.log(JSON.stringify(finalOutput, null, 2));
-  console.log(` ${Date.now() - start} ms\n`);
+  output.meta.evaluation_time_ms = Date.now() - start;
+
+  console.log(JSON.stringify(output, null, 2));
+  console.log("––––––––––––––––\n");
 });
 
-console.log("✅ Demo completed");
+console.log("✅ Demo completed safely");
