@@ -27,7 +27,7 @@ No core agent logic is modified.
 task-review-demo/
 ├── validators/
 │ └── outputValidator.js
-├── mock/
+├──deterministic adapter/
 │ └── taskReviewAgent.js
 ├── tests/
 │ └── golden/
