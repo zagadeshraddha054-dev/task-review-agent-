@@ -1,102 +1,145 @@
-# task-review-agent-
-# Stabilization & Verification Sprint – Task Review Agent
+Stabilization & Verification Sprint – Task Review Engine
+Overview
 
-## Purpose
-This project implements stabilization and verification for the Task Review Agent to make it **demo-safe and reliable**.
+This project implements a deterministic, assignment-aware task review engine as part of the Stabilization and Verification Sprint.
+The goal is to ensure stable, predictable, and demo-safe evaluation output that strictly follows the mandated production contract.
 
-The focus is on:
-- Preventing crashes
-- Enforcing a strict output JSON contract
-- Handling all failure cases safely
-- Ensuring deterministic demo behavior
+The system focuses on:
 
-No core agent logic is modified.
+Deterministic behavior
 
----
+Strict output validation
 
-## What is implemented
-- Strict output contract validator
-- Failure handling for invalid and empty inputs
-- Golden demo test cases to lock behavior
-- Single-command demo runner script
-- Clear demo and test instructions
+Clear separation between engine logic, validation, tests, and demo execution
 
----
+What Changed
 
-## Project Structure
-task-review-demo/
-├── validators/
-│ └── outputValidator.js
-├──deterministic adapter/
-│ └── taskReviewAgent.js
-├── tests/
-│ └── golden/
-│ └── goldenTests.js
-├── scripts/
-│ └── demoRunner.js
-└── README.md
+The following updates were made based on the assignment requirements:
 
-## Output Contract
-All agent outputs must follow this structure:
+Replaced mock-style logic with a deterministic task review engine
 
-'''json 
+Engine now evaluates assignment + submission payloads
+
+Output aligned to the canonical production JSON contract
+
+Introduced strict schema validation to prevent malformed outputs
+
+Added golden tests to explicitly prove deterministic behavior
+
+Updated demo runner to use real assignment payloads instead of plain text input
+
+All changes were made within the existing codebase.
+
+Input Format (Assignment-Aware)
+
+The review engine expects a structured payload:
+
 {
-  "status": "pass | fail",
-  "readiness_percent": 0-100,
-  "analysis": {
-    "strengths": [],
-    "weaknesses": []
+  "assignment": {
+    "title": "Stabilization Sprint",
+    "requirements": ["Validator", "Golden tests"],
+    "deliverables": ["GitHub repo", "README"],
+    "timeline": {
+      "assigned_date": "YYYY-MM-DD",
+      "due_date": "YYYY-MM-DD",
+      "submitted_date": "YYYY-MM-DD"
+    }
   },
-  "improvement_hints": [],
+  "submission": {
+    "content": "Description of work done",
+    "artifacts_present": ["GitHub repo", "README"]
+  }
+}
+
+
+Plain text inputs are no longer used.
+
+Output Contract (Production-Aligned)
+
+All outputs strictly follow this structure:
+
+{
+  "score": number,
+  "readiness_percent": number,
+  "status": "pass | fail | borderline",
+  "review": {
+    "done_well": [],
+    "missing": [],
+    "timeline_comment": ""
+  },
+  "analysis": {
+    "accuracy": number,
+    "completeness": number,
+    "quality": number
+  },
+  "internal": {
+    "risks": [],
+    "next_task_preview": ""
+  },
   "meta": {
-    "engine_version": "string",
+    "deterministic": true,
     "evaluation_time_ms": number
   }
 }
 
-The system safely handles:
 
-Empty inputs
+Any deviation from this contract is rejected by the validator and replaced with a safe failure response.
 
-Very short inputs
+Validation & Stability
 
-Invalid or irrelevant content
+Required fields are strictly enforced
 
-In all such cases:
+Invalid or malformed outputs never reach the demo
 
-status is set to fail
+A controlled fallback response is always returned on validation failure
 
-Proper failure reasons are returned
+No randomness is used anywhere in the system
 
-The system never crashes
+This guarantees demo safety and predictable behavior.
 
-How to Run
-Run Demo
+Determinism Verification
+
+Golden tests run the same payload multiple times and compare outputs to ensure:
+
+Identical input always produces identical output
+
+No hidden non-determinism exists
+
+Behavior is locked for demo and verification
+
+Demo Execution
+Run the demo
 node scripts/demoRunner.js
 
-Run Golden Tests
+
+The demo:
+
+Uses a real assignment payload
+
+Runs the review engine
+
+Validates output against the production schema
+
+Prints only safe, validated results
+
+Golden Tests
+Run determinism tests
 node tests/golden/goldenTests.js
 
-Current Status
 
-Output contract fully aligned with production requirements
+Expected result:
 
-Validator strictly enforces schema and safety rules
+✅ Determinism verified across repeated runs
 
-Deterministic behavior verified through repeated tests
-
-Demo is stable, predictable, and ready for live validation
-## Daily State Log
-
-### Day 1
-- Understood stabilization and verification requirements
-- Reviewed mandated production output contract
-
-### Day 2
-- Aligned output structure with production schema
-- Implemented strict validator with nested checks
-
-### Day 3
-- Updated deterministic engine adapter
-- Added repeat-run golden tests
-- Verified demo safety with strict validation
+Project Structure
+project-root/
+├── mock/
+│   └── taskReviewAgent.js
+├── validators/
+│   └── outputValidator.js
+├── scripts/
+│   └── demoRunner.js
+├── tests/
+│   └── golden/
+│       └── goldenTests.js
+└── README.md
