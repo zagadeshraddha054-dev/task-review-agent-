@@ -1,30 +1,7 @@
-Stabilization & Verification Sprint – Task Review Engine
-Overview
+Task Review Engine – Stabilization & Verification Sprint
+Input Format
 
-This project implements a deterministic, assignment-aware task review engine as part of the Stabilization and Verification Sprint.
-The goal is to ensure stable, predictable, and demo-safe evaluation output that strictly follows the mandated production contract.
-
-The system focuses on:
-
-Deterministic behavior
-
-Strict output validation
-
-Clear separation between engine logic, validation, tests, and demo execution
-
-What Changed
-
-The following updates were made based on the assignment requirements:
-Replaced mock-style logic with a deterministic task review engine
-Engine now evaluates assignment + submission payloads
-Output aligned to the canonical production JSON contract
-Introduced strict schema validation to prevent malformed outputs
-Added golden tests to explicitly prove deterministic behavior
-Updated demo runner to use real assignment payloads instead of plain text input
-All changes were made within the existing codebase.
-Input Format (Assignment-Aware)
-
-The review engine expects a structured payload:
+The task review engine expects a structured payload containing assignment details and the submitted work.
 
 {
   "assignment": {
@@ -44,16 +21,16 @@ The review engine expects a structured payload:
 }
 
 
-Plain text inputs are no longer used.
+Plain text inputs are not used. All evaluations are based on this structured input.
 
-Output Contract (Production-Aligned)
+Output Format
 
-All outputs strictly follow this structure:
+The engine produces a deterministic, production-aligned JSON output.
 
 {
   "score": number,
   "readiness_percent": number,
-  "status": "pass | fail | borderline",
+  "status": "pass | borderline | fail",
   "review": {
     "done_well": [],
     "missing": [],
@@ -73,41 +50,25 @@ All outputs strictly follow this structure:
     "evaluation_time_ms": number
   }
 }
+All required fields are strictly validated. Any invalid output is replaced with a safe failure response.
 
-
-Any deviation from this contract is rejected by the validator and replaced with a safe failure response.
-
-Validation & Stability
-
-Required fields are strictly enforced
-Invalid or malformed outputs never reach the demo
-A controlled fallback response is always returned on validation failure
-No randomness is used anywhere in the system
-This guarantees demo safety and predictable behavior.
-
-Determinism Verification
-
-Golden tests run the same payload multiple times and compare outputs to ensure:
-Identical input always produces identical output
-No hidden non-determinism exists
-Behavior is locked for demo and verification
-
-Demo Execution
-Run the demo
+How to Run
+Run Demo
 node scripts/demoRunner.js
 
+This runs the task review engine with a sample assignment payload and prints the validated output.
 
-The demo:
-
-Uses a real assignment payload
-Runs the review engine
-Validates output against the production schema
-Prints only safe, validated results
-
-Golden Tests
-Run determinism tests
+Run Golden Tests
 node tests/golden/goldenTests.js
 
+This executes predefined PASS, BORDERLINE, and FAIL cases.
+
+Determinism Confirmation
+
+Deterministic behavior is confirmed through golden tests:
+Each test case runs the same input multiple times
+Outputs are compared for byte-level equality
+Any difference causes the test to fail
 
 Expected result:
 
