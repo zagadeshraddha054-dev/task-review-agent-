@@ -1,51 +1,34 @@
 const { taskReviewAgent } = require("../mock/taskReviewAgent");
 const { validateAgentOutput } = require("../validators/outputValidator");
 
-console.log("🚀 Demo Runner\n");
-
-const engineOutputs = [
-  {
-    status: "pass",
-    readiness_percent: 82,
-    analysis: {
-      strengths: ["Clear explanation"],
-      weaknesses: []
-    },
-    improvement_hints: ["Add more examples"],
-    meta: {
-      engine_version: "real-engine-v1",
-      evaluation_time_ms: 0
+const payload = {
+  assignment: {
+    title: "Stabilization Sprint",
+    requirements: ["Validator", "Golden tests"],
+    deliverables: ["GitHub repo", "README"],
+    timeline: {
+      assigned_date: "2025-02-01",
+      due_date: "2025-02-05",
+      submitted_date: "2025-02-04"
     }
   },
-  {
-    status: "fail",
-    readiness_percent: 0,
-    analysis: {
-      strengths: [],
-      weaknesses: ["Input too short or empty"]
-    },
-    improvement_hints: [],
-    meta: {
-      engine_version: "real-engine-v1",
-      evaluation_time_ms: 0
-    }
+  submission: {
+    content: "Validator and Golden tests implemented",
+    artifacts_present: ["GitHub repo", "README"]
   }
-];
+};
 
-engineOutputs.forEach(engineOutput => {
-  const start = Date.now();
+console.log("🚀 Demo Runner\n");
 
-  const raw = taskReviewAgent(engineOutput);
-  const validation = validateAgentOutput(raw);
+const start = Date.now();
+const raw = taskReviewAgent(payload);
+const validation = validateAgentOutput(raw);
 
-  const output = validation.valid
-    ? validation.data
-    : validation.safe_response;
+const output = validation.valid
+  ? validation.data
+  : validation.safe_response;
 
-  output.meta.evaluation_time_ms = Date.now() - start;
+output.meta.evaluation_time_ms = Date.now() - start;
 
-  console.log(JSON.stringify(output, null, 2));
-  console.log("––––––––––––––––\n");
-});
-
-console.log("✅ Demo completed safely");
+console.log(JSON.stringify(output, null, 2));
+console.log("\n✅ Demo completed safely");
