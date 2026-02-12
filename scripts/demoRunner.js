@@ -1,18 +1,41 @@
 const { taskReviewAgent } = require("../mock/taskReviewAgent");
 const { validateAgentOutput } = require("../validators/outputValidator");
 
-const inputs = [
-  "Clear and structured explanation.",
-  "Very short",
-  "",
-  "Irrelevant content"
+console.log("🚀 Demo Runner\n");
+
+const engineOutputs = [
+  {
+    status: "pass",
+    readiness_percent: 82,
+    analysis: {
+      strengths: ["Clear explanation"],
+      weaknesses: []
+    },
+    improvement_hints: ["Add more examples"],
+    meta: {
+      engine_version: "real-engine-v1",
+      evaluation_time_ms: 0
+    }
+  },
+  {
+    status: "fail",
+    readiness_percent: 0,
+    analysis: {
+      strengths: [],
+      weaknesses: ["Input too short or empty"]
+    },
+    improvement_hints: [],
+    meta: {
+      engine_version: "real-engine-v1",
+      evaluation_time_ms: 0
+    }
+  }
 ];
 
-console.log(" Demo Runner\n");
-
-inputs.forEach(input => {
+engineOutputs.forEach(engineOutput => {
   const start = Date.now();
-  const raw = taskReviewAgent(input);
+
+  const raw = taskReviewAgent(engineOutput);
   const validation = validateAgentOutput(raw);
 
   const output = validation.valid
