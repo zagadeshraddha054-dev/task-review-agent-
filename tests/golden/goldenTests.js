@@ -1,9 +1,53 @@
 const { taskReviewAgent } = require("../../mock/taskReviewAgent");
 
-const payload = {
+// Helper function to check determinism
+function runDeterminismTest(testName, payload, expectedStatus) {
+  let baseline = null;
+
+  for (let i = 0; i < 3; i++) {
+    const output = taskReviewAgent(payload);
+
+    if (output.status !== expectedStatus) {
+      throw new Error(
+        `${testName}: Expected status ${expectedStatus}, got ${output.status}`
+      );
+    }
+
+    const current = JSON.stringify(output);
+
+    if (!baseline) {
+      baseline = current;
+    } else if (baseline !== current) {
+      throw new Error(`${testName}: Output is not deterministic`);
+    }
+  }
+
+  console.log(`✅ ${testName} (${expectedStatus}) is deterministic`);
+}
+
+/* ---------------- PASS CASE ---------------- */
+const passPayload = {
   assignment: {
-    title: "Determinism Test",
-    requirements: ["Validator"],
+    title: "Pass Case",
+    requirements: ["Validator", "Golden tests"],
+    deliverables: [],
+    timeline: {
+      assigned_date: "2025-02-01",
+      due_date: "2025-02-05",
+      submitted_date: "2025-02-04"
+    }
+  },
+  submission: {
+    content: "Validator and Golden tests implemented correctly",
+    artifacts_present: []
+  }
+};
+
+/* -------------- BORDERLINE CASE -------------- */
+const borderlinePayload = {
+  assignment: {
+    title: "Borderline Case",
+    requirements: ["Validator", "Golden tests", "README"],
     deliverables: [],
     timeline: {
       assigned_date: "2025-02-01",
@@ -17,14 +61,27 @@ const payload = {
   }
 };
 
-let baseline = null;
-
-for (let i = 0; i < 5; i++) {
-  const output = JSON.stringify(taskReviewAgent(payload));
-  if (!baseline) baseline = output;
-  else if (baseline !== output) {
-    throw new Error("❌ Non-deterministic output detected");
+/* ---------------- FAIL CASE ---------------- */
+const failPayload = {
+  assignment: {
+    title: "Fail Case",
+    requirements: ["Validator", "Golden tests"],
+    deliverables: [],
+    timeline: {
+      assigned_date: "2025-02-01",
+      due_date: "2025-02-05",
+      submitted_date: "2025-02-06"
+    }
+  },
+  submission: {
+    content: "Unrelated content",
+    artifacts_present: []
   }
-}
+};
 
-console.log("✅ Determinism verified across repeated runs");
+/* -------- RUN GOLDEN TESTS -------- */
+runDeterminismTest("PASS CASE", passPayload, "pass");
+runDeterminismTest("BORDERLINE CASE", borderlinePayload, "borderline");
+runDeterminismTest("FAIL CASE", failPayload, "fail");
+
+console.log("🎯 All golden tests passed with determinism");
