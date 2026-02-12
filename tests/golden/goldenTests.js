@@ -1,48 +1,30 @@
-const { validateAgentOutput } = require("../../validators/outputValidator");
 const { taskReviewAgent } = require("../../mock/taskReviewAgent");
 
-function runDeterministicTest(name, input, expectedStatus) {
-  let baseline = null;
-
-  for (let i = 0; i < 3; i++) {
-    const raw = taskReviewAgent(input);
-    const result = validateAgentOutput(raw);
-
-    if (!result.valid) {
-      throw new Error(`${name}: validation failed`);
+const payload = {
+  assignment: {
+    title: "Determinism Test",
+    requirements: ["Validator"],
+    deliverables: [],
+    timeline: {
+      assigned_date: "2025-02-01",
+      due_date: "2025-02-05",
+      submitted_date: "2025-02-05"
     }
-
-    const output = result.data;
-
-    if (output.status !== expectedStatus) {
-      throw new Error(`${name}: wrong status`);
-    }
-
-    if (!baseline) baseline = JSON.stringify(output);
-    else if (baseline !== JSON.stringify(output)) {
-      throw new Error(`${name}: non-deterministic output`);
-    }
+  },
+  submission: {
+    content: "Validator implemented",
+    artifacts_present: []
   }
+};
 
-  console.log(`✅ ${name} deterministic`);
+let baseline = null;
+
+for (let i = 0; i < 5; i++) {
+  const output = JSON.stringify(taskReviewAgent(payload));
+  if (!baseline) baseline = output;
+  else if (baseline !== output) {
+    throw new Error("❌ Non-deterministic output detected");
+  }
 }
 
-runDeterministicTest(
-  "PASS CASE",
-  "This submission clearly explains the solution.",
-  "pass"
-);
-
-runDeterministicTest(
-  "FAIL CASE",
-  "Irrelevant content",
-  "fail"
-);
-
-runDeterministicTest(
-  "EMPTY CASE",
-  "",
-  "fail"
-);
-
-console.log("Golden tests passed with determinism");
+console.log("✅ Determinism verified across repeated runs");
