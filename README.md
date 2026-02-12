@@ -15,21 +15,13 @@ Clear separation between engine logic, validation, tests, and demo execution
 What Changed
 
 The following updates were made based on the assignment requirements:
-
 Replaced mock-style logic with a deterministic task review engine
-
 Engine now evaluates assignment + submission payloads
-
 Output aligned to the canonical production JSON contract
-
 Introduced strict schema validation to prevent malformed outputs
-
 Added golden tests to explicitly prove deterministic behavior
-
 Updated demo runner to use real assignment payloads instead of plain text input
-
 All changes were made within the existing codebase.
-
 Input Format (Assignment-Aware)
 
 The review engine expects a structured payload:
@@ -88,23 +80,16 @@ Any deviation from this contract is rejected by the validator and replaced with 
 Validation & Stability
 
 Required fields are strictly enforced
-
 Invalid or malformed outputs never reach the demo
-
 A controlled fallback response is always returned on validation failure
-
 No randomness is used anywhere in the system
-
 This guarantees demo safety and predictable behavior.
 
 Determinism Verification
 
 Golden tests run the same payload multiple times and compare outputs to ensure:
-
 Identical input always produces identical output
-
 No hidden non-determinism exists
-
 Behavior is locked for demo and verification
 
 Demo Execution
@@ -115,11 +100,8 @@ node scripts/demoRunner.js
 The demo:
 
 Uses a real assignment payload
-
 Runs the review engine
-
 Validates output against the production schema
-
 Prints only safe, validated results
 
 Golden Tests
@@ -143,3 +125,14 @@ project-root/
 │   └── golden/
 │       └── goldenTests.js
 └── README.md
+
+## Daily State Log
+
+## Day 1
+Reviewed the task requirements, understood the production output contract, and identified gaps in the existing mock-based approach.
+
+## Day 2
+Updated the code to use a deterministic, assignment-aware review engine and aligned all outputs with the required JSON schema.
+
+## Day 3
+Added strict validation and golden tests to prove deterministic behavior, and ensured the demo runs safely and consistently.
